@@ -7,12 +7,12 @@
 // Piezo buzzer pin, but an 8-ohm speaker will give somewhat
 // better quality sound.
 // Use a 22ohm resistor from this pin to the piezo/speaker
-int piezoPin = 15;
+int piezoPin = 4;
 
 // The tone will stop playing while this pin is grounded.
 // Or the code can be modified to terminate the tone when
 // the pin is grounded.
-int stopPin = 4;
+int stopPin = 5;
 
 
 // Times of zero crossing when sampled at 8000Hz
@@ -555,17 +555,19 @@ uint16_t tone_zeroes[] = {
 
 void setup()  
 {
-//  Serial.begin(9600);
-//  while(!Serial);
-//  delay(2000);
+  Serial.begin(9600);
+  while(!Serial);
+  delay(2000);
   
   pinMode(piezoPin, OUTPUT);
   pinMode(stopPin, INPUT_PULLUP);
   // Initialize the tone_zeroes array
-  for(int i = sizeof(tone_zeroes)/sizeof(tone_zeroes[0])-1;i > 0 ;i--) {
+  for(int i = sizeof(tone_zeroes)/sizeof(tone_zeroes[0])-1;i > 0 ;i--) 
+  {
     tone_zeroes[i] = tone_zeroes[i] - tone_zeroes[i-1];
 //Serial.println(tone_zeroes[i]);
   }
+  
   play_dial();
 }      
 
