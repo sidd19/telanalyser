@@ -36,7 +36,7 @@ unsigned long previousMillis = 0;
 #define std 36
 #define tonestart 37 //Receiver tone activation pin.
 #define tonestop 38 //Receiver tone de-activation pin. 
-#define pulseinput 39
+#define pulseinput 12
 
 
 
@@ -626,9 +626,9 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-
-dtmftest();
-play_dialtone();
+//
+//dtmftest();
+//play_dialtone();
 pulse();
 
 }
@@ -864,32 +864,70 @@ int pulse()
       digitalWrite(ringpower, 1);       //de-activate ring relay
       digitalWrite(receiverpower, 1);   //de-activate receiver relay
       digitalWrite(transmitterpower, 1);//de-activate transmitter relay
-                                                                                        //***************************************pulse digit+ ips+ %break etc detection code
-            int pulse = 0; // Variable for saving pulses count.
-            int var = 0;
-            Serial.begin(9600);
-            Serial.println(F("No pulses yet...")); // Message to send initially (no pulses detected yet).
-  if(digitalRead(pulseinput) > var)
+                                                                
+                                                                              //***************************************pulse digit+ ips+ %break etc detection code
+unsigned long starttime;                   
+unsigned long endtime;
+unsigned long duration;
+unsigned long make;
+unsigned long brk;
+unsigned long pulsewidth = 100;             // Variable for saving pulseswidth.
+
+int pulse = 0;                              // Variable for saving pulses count.
+int var = 0;                                // Variable for detecting pulse "HIGH".
+int  currentstate = 0;                     
+starttime = millis();                       // Variable for saving intial value of Timer.
+endtime = starttime;                        // Variable for saving final value of Timer.
+
+if(digitalRead(pulseinput) > var)           // Detection of Pulse "HIGH" or "LOW".
+{
+  
+           duration = pulseIn(pulseinput,LOW,10);                             
+     
+while ((endtime - starttime) <=1100)        // do this loop for up to 1000mS
+{ 
+  
+
+// code here
+ if(digitalRead(pulseinput) > var)          // Pulse detected "HIGH".
   {
     var = 1;
-    pulse++;
-   
-          Serial.print(pulse);
-          Serial.print(F(" pulse"));
+    pulse= pulse + 1;
+    
+    Serial.print(pulse);
+    Serial.print(F(" pulse"));
 
-                          
-          if(pulse > 1)                            // Put an "s" if the amount of pulses is greater than 1.
-          {Serial.print(F("s"));}
-           Serial.println(F(" detected."));
-           pulse = 0;
-  }
- 
-      if(digitalRead(pulseinput) == 0) 
-      {var = 0;}
-  
-  delay(1); // Delay for stability.
+                                              // Put an "s" if the amount of pulses is greater than 1.
+    if(pulse > 1) {Serial.print(F("s"));}
+   
+    Serial.println(F(" detected."));
      
+    
+  }
+  
+ currentstate = pulse;
+  if(digitalRead(pulseinput) == 0)              // Detection of Pulse "HIGH" or "LOW".
+  {var = 0;}
+        
+         endtime = millis();  
+              
+       
+     
+}                                                 // while loop ends here
+
+          
+  
+          make = duration;    //Duration upto which Pulse detected "HIGH."
+          Serial.println(make);
+          brk = pulsewidth - (make);                //calculation of BREAK Duration.
+          
+          Serial.println("Break ratio % = ");     
+          Serial.println(brk); //"Break Ratio:"
+           
 }
+
+}
+
 
 //*************************************************************************************************************************************************************************
 int ring()
