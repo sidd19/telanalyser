@@ -7,25 +7,25 @@
 
 
 unsigned long previousMillis = 0;
-#define teleorcalleridswitch 3
-#define pulseoridptest 4
-#define ringtest 5
-#define ansbutton 6
-#define receivertest 7
-#define transmittertest 8
-#define incooutgo 9
-#define manautoswitch 10          
-#define repeatcall 11// repeat calls doesn't require power relays
+#define dialoridptest 2
+#define ringtest 3
+#define receivertest 4
+#define transmittertest 5
+#define answerbutton 6
+#define manualbutton 7
+#define telephoneorcalleridtest 8
+#define incomingoroutgoingcalls 9          
+#define repeatcalls 10               // repeat calls doesn't require power relays
+#define manualorautobutton 11
+
+#define powerRL 17                     //
+#define ringRL 18                      //  ATTACHED TO PROMINI-1
+#define transmitterRL 19               //
 
 
-#define telepower 21
-#define pulsepower 22
-#define idppower 23
-#define ringpower 24
+#define dtmfRL 15
+#define pulseRL 16
 #define receiverpower 25
-#define transmitterpower 26
-//#define incopower 27
-//#define outgopower 28
 
 
 #define Q1 31
@@ -584,23 +584,24 @@ void setup() {
   // put your setup code here, to run once:
 
 
-  pinMode(teleorcalleridswitch, INPUT);
-  pinMode(pulseoridptest, INPUT);
+  pinMode(dialoridptest, INPUT);
   pinMode(ringtest, INPUT);
-  pinMode(ansbutton, INPUT);
   pinMode(receivertest, INPUT);
   pinMode(transmittertest, INPUT);
-  pinMode(incooutgo, INPUT);
-  pinMode(manautoswitch, INPUT);
-  pinMode(repeatcall, INPUT);
+  pinMode(answerbutton, INPUT);
+  pinMode(manualbutton, INPUT);
+  pinMode(telephoneorcalleridtest, INPUT);
+  pinMode(incomingoroutgoingcalls, INPUT);
+  pinMode(repeatcalls, INPUT);
+  pinMode(manualorautobutton, INPUT);
 
 
-  pinMode(telepower, OUTPUT);
-  pinMode(pulsepower, OUTPUT);
-  pinMode(idppower, OUTPUT);
-  pinMode(ringpower, OUTPUT);
+  pinMode(powerRL, OUTPUT);
+  pinMode(pulseRL, OUTPUT);
+  pinMode(dtmfRL, OUTPUT);
+  pinMode(ringRL, OUTPUT);
   pinMode(receiverpower, OUTPUT);
-  pinMode(transmitterpower, OUTPUT);
+  pinMode(transmitterRL, OUTPUT);
   
   pinMode(PWDN, OUTPUT); 
 
@@ -636,13 +637,13 @@ pulse();
 
 int dtmftest()  //activate IDP mode
 {
-      digitalWrite(telepower, 0);       //activate Telephone relay
-      digitalWrite(idppower, 0);        //de-activate DTMF relay
+      digitalWrite(powerRL, 0);       //activate Telephone relay
+      digitalWrite(dtmfRL, 0);        //de-activate DTMF relay
       digitalWrite(PWDN, 0);            //activate POWER DOWN OF SC9270D IC
-      digitalWrite(pulsepower, 1);      //de-activate pulse relay
-      digitalWrite(ringpower, 1);       //de-activate ring relay
+      digitalWrite(pulseRL, 1);      //de-activate pulse relay
+      digitalWrite(ringRL, 1);       //de-activate ring relay
       digitalWrite(receiverpower, 1);   //de-activate receiver relay
-      digitalWrite(transmitterpower, 1);//de-activate transmitter relay
+      digitalWrite(transmitterRL, 1);//de-activate transmitter relay
       
    
       int d0,d1,d2,d3,d4;
@@ -817,11 +818,11 @@ void play_dialtone (void)                   //activate Tone mode
 {
       digitalWrite(receiverpower, 0);   //activate receiver relay
       
-      digitalWrite(telepower, 1);       //de-activate Telephone relay
-      digitalWrite(idppower, 1);        //de-activate DTMF relay
-      digitalWrite(pulsepower, 1);      //de-activate pulse relay
-      digitalWrite(ringpower, 1);       //de-activate ring relay
-      digitalWrite(transmitterpower, 1);//de-activate transmitter relay
+      digitalWrite(powerRL, 1);       //de-activate Telephone relay
+      digitalWrite(dtmfRL, 1);        //de-activate DTMF relay
+      digitalWrite(pulseRL, 1);      //de-activate pulse relay
+      digitalWrite(ringRL, 1);       //de-activate ring relay
+      digitalWrite(transmitterRL, 1);//de-activate transmitter relay
  
   
   while(!Serial);
@@ -857,13 +858,13 @@ void play_dialtone (void)                   //activate Tone mode
 
 int pulse()
 {
-      digitalWrite(telepower, 0);       //activate Telephone relay
-      digitalWrite(pulsepower, 0);      //activate pulse relay
+      digitalWrite(powerRL, 0);       //activate Telephone relay
+      digitalWrite(pulseRL, 0);      //activate pulse relay
       
-      digitalWrite(idppower, 1);        //de-activate DTMF relay
-      digitalWrite(ringpower, 1);       //de-activate ring relay
+      digitalWrite(dtmfRL, 1);        //de-activate DTMF relay
+      digitalWrite(ringRL, 1);       //de-activate ring relay
       digitalWrite(receiverpower, 1);   //de-activate receiver relay
-      digitalWrite(transmitterpower, 1);//de-activate transmitter relay
+      digitalWrite(transmitterRL, 1);//de-activate transmitter relay
                                                                 
                                                                               //***************************************pulse digit+ ips+ %break etc detection code
 unsigned long starttime;                   
@@ -931,25 +932,25 @@ while ((endtime - starttime) <=1100)        // do this loop for up to 1000mS
 
 //*************************************************************************************************************************************************************************
 int ring()
-{     digitalWrite(ringpower, 0);       //activate ring relay
+{     digitalWrite(ringRL, 0);       //activate ring relay
       
-      digitalWrite(telepower, 1);       //de-activate Telephone relay
-      digitalWrite(transmitterpower, 1);//de-activate transmitter relay
-      digitalWrite(pulsepower, 1);      //de-activate pulse relay
-      digitalWrite(idppower, 1);        //de-activate DTMF relay
-      digitalWrite(ringpower, 1);       //de-activate ring relay
+      digitalWrite(powerRL, 1);       //de-activate Telephone relay
+      digitalWrite(transmitterRL, 1);//de-activate transmitter relay
+      digitalWrite(pulseRL, 1);      //de-activate pulse relay
+      digitalWrite(dtmfRL, 1);        //de-activate DTMF relay
+      digitalWrite(ringRL, 1);       //de-activate ring relay
       digitalWrite(receiverpower, 1);   //de-activate receiver relay
-      digitalWrite(transmitterpower, 1);//de-activate transmitter relay
+      digitalWrite(transmitterRL, 1);//de-activate transmitter relay
 }
 //*************************************************************************************************************************************************************************
 int transmitter()
 {
-      digitalWrite(telepower, 0);       //activate Telephone relay
-      digitalWrite(transmitterpower, 0);//activate transmitter relay
+      digitalWrite(powerRL, 0);       //activate Telephone relay
+      digitalWrite(transmitterRL, 0);//activate transmitter relay
       
-      digitalWrite(pulsepower, 1);      //de-activate pulse relay
-      digitalWrite(idppower, 1);        //de-activate DTMF relay
-      digitalWrite(ringpower, 1);       //de-activate ring relay
+      digitalWrite(pulseRL, 1);      //de-activate pulse relay
+      digitalWrite(dtmfRL, 1);        //de-activate DTMF relay
+      digitalWrite(ringRL, 1);       //de-activate ring relay
       digitalWrite(receiverpower, 1);   //de-activate receiver relay
-      digitalWrite(transmitterpower, 1);//de-activate transmitter relay
+      digitalWrite(transmitterRL, 1);//de-activate transmitter relay
 }
