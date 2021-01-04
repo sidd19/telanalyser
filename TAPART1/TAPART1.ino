@@ -11,7 +11,7 @@
 #define manaulorauto 11
 
 #define powerRL 16
-#define ringRL 17
+#define ringRL 12
 #define txRL 15
 
 void setup()
@@ -37,7 +37,7 @@ void setup()
 
 void loop()
 {
-  
+ ring(); 
 }
 
 int power()
@@ -52,10 +52,10 @@ int power()
 
 int ring()
 {     
-      digitalWrite(ringRL, 0);        //activate ring relay
+      digitalWrite(ringRL, 1);        //activate ring relay
       
-      digitalWrite(powerRL, 1);       //de-activate Telephone relay
-      digitalWrite(txRL, 1);          //de-activate transmitter relay
+      digitalWrite(powerRL, 0);       //de-activate Telephone relay
+      digitalWrite(txRL, 0);          //de-activate transmitter relay
       
 }
 
