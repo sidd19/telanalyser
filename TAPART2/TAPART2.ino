@@ -1,49 +1,18 @@
+#include <LiquidCrystal.h> // includes the LiquidCrystal Library
+#define dtmfRL 13
+#define pulseRL 14
+#define rxRL 15
 
+#define Q1 11
+#define Q2 10
+#define Q3 21
+#define Q4 20
+#define pwdn 12
+#define std 9
 
-/* Telephone Analyser
-    Version :- 0.1
-    Author :- Siddharth Singh & Amit Raj
-*/
-
-
-unsigned long previousMillis = 0;
-#define dialoridptest 2
-#define ringtest 3
-#define receivertest 4
-#define transmittertest 5
-#define answerbutton 6
-#define manualbutton 7
-#define telephoneorcalleridtest 8
-#define incomingoroutgoingcalls 9          
-#define repeatcalls 10               // repeat calls doesn't require power relays
-#define manualorautobutton 11
-
-#define powerRL 17                     //
-#define ringRL 18                      //  ATTACHED TO PROMINI-1
-#define transmitterRL 19               //
-
-
-#define dtmfRL 15
-#define pulseRL 16
-#define receiverpower 25
-
-
-#define Q1 31
-#define Q2 32
-#define Q3 33
-#define Q4 34
-#define PWDN 35
-#define std 36
-#define tonestart 37 //Receiver tone activation pin.
-#define tonestop 38 //Receiver tone de-activation pin. 
-#define pulseinput 12
-
-
-
-
-
-
-
+#define rxin 16
+#define rxout 18
+#define pulsein 17
 
 uint16_t tone_zeroes[] = 
 {     
@@ -580,70 +549,51 @@ uint16_t tone_zeroes[] =
 };
 
 
-void setup() {
-  // put your setup code here, to run once:
+int pulsecounter = 1;
+int var = 0;
+unsigned long duration;
+unsigned long starttime;                   
+unsigned long endtime;
+unsigned long dur;
+unsigned long dur2;
+unsigned long pulsewidth = 100000;
+unsigned long brratio;
 
 
-  pinMode(dialoridptest, INPUT);
-  pinMode(ringtest, INPUT);
-  pinMode(receivertest, INPUT);
-  pinMode(transmittertest, INPUT);
-  pinMode(answerbutton, INPUT);
-  pinMode(manualbutton, INPUT);
-  pinMode(telephoneorcalleridtest, INPUT);
-  pinMode(incomingoroutgoingcalls, INPUT);
-  pinMode(repeatcalls, INPUT);
-  pinMode(manualorautobutton, INPUT);
-
-
-  pinMode(powerRL, OUTPUT);
-  pinMode(pulseRL, OUTPUT);
-  pinMode(dtmfRL, OUTPUT);
-  pinMode(ringRL, OUTPUT);
-  pinMode(receiverpower, OUTPUT);
-  pinMode(transmitterRL, OUTPUT);
-  
-  pinMode(PWDN, OUTPUT); 
-
-  pinMode(Q1, INPUT);
-  pinMode(Q2, INPUT);
-  pinMode(Q3, INPUT);
-  pinMode(Q4, INPUT);
-  pinMode(std, INPUT);
-  pinMode(pulseinput, INPUT);
-
-
-
-  Serial.begin(9600);
-
-
-
-
-  
-
-
-
-}
-
-void loop() {
-  // put your main code here, to run repeatedly:
-//
-//dtmftest();
-//play_dialtone();
-pulse();
-
-}
-
-
-int dtmftest()  //activate IDP mode
+void setup()
 {
-      digitalWrite(powerRL, 0);       //activate Telephone relay
-      digitalWrite(dtmfRL, 0);        //de-activate DTMF relay
-      digitalWrite(PWDN, 0);            //activate POWER DOWN OF SC9270D IC
-      digitalWrite(pulseRL, 1);      //de-activate pulse relay
-      digitalWrite(ringRL, 1);       //de-activate ring relay
-      digitalWrite(receiverpower, 1);   //de-activate receiver relay
-      digitalWrite(transmitterRL, 1);//de-activate transmitter relay
+  
+ pinMode(Q1, INPUT);
+ pinMode(Q2, INPUT);
+ pinMode(Q3, INPUT);
+ pinMode(Q4, INPUT);
+ pinMode(pwdn, INPUT);
+ pinMode(std, INPUT);
+
+ pinMode(rxin, INPUT);
+ pinMode(pulsein, INPUT);
+
+ pinMode(dtmfRL, INPUT);
+ pinMode(rxin, INPUT);
+ pinMode(pulsein, INPUT);
+ 
+}
+
+void loop()
+{
+ Serial.begin(9600);
+}
+
+
+int dtmftest()                            //activate DIAL TEST
+{
+      //digitalWrite(powerRL, 0);         //activate Telephone relay
+      digitalWrite(dtmfRL, 0);            //de-activate DTMF relay
+      digitalWrite(pwdn, 0);              //activate POWER DOWN OF SC9270D IC
+      
+      digitalWrite(pulseRL, 1);           //de-activate pulse relay
+      digitalWrite(rxRL, 1);              //de-activate receiver relay
+     
       
    
       int d0,d1,d2,d3,d4;
@@ -655,28 +605,7 @@ int dtmftest()  //activate IDP mode
                d4 = digitalRead(std);         //reading input pin "STEERING DELAY"
 
 
-int idpinterval;
- unsigned long idpd; 
- int std1;
- unsigned long currentMillis;
- std1 = digitalRead(std);
- currentMillis = millis();
 
-  if(std1 == 1)
-  {
-    //currentMillis = millis();
-     idpd = currentMillis - previousMillis;
-    Serial.println(idpd);
-    previousMillis = currentMillis;
-  }
-  if(std1 == 0)
-  {
-//    if(currentMillis >1280);
-//    {
-//      currentMillis = 0;
-//    }
-  }
-  
   
     if ((d0 == 0) & (d1 == 0) & (d2 == 0) & (d3 == 1)) // Decoding DTMF to Numeric "1"
      {
@@ -685,7 +614,7 @@ int idpinterval;
                //lcd.print("1");//lcd write
                Serial.println("1");
                delay(200);
-               digitalWrite(PWDN, 1); //activate power down input
+               digitalWrite(pwdn, 1); //activate power down input
           } 
      }
 
@@ -696,7 +625,7 @@ int idpinterval;
 //             lcd.print("2");//lcd write
                Serial.println("2");
                delay(200);
-               digitalWrite(PWDN, 1);  //activate power down input
+               digitalWrite(pwdn, 1);  //activate power down input
           } 
     }
 
@@ -708,7 +637,7 @@ int idpinterval;
 //             lcd.print("3");//lcd write
                Serial.println("3"); //Serial write "3"
                delay(200);
-               digitalWrite(PWDN, 1);  //activate power down input
+               digitalWrite(pwdn, 1);  //activate power down input
           }
     }
 
@@ -719,7 +648,7 @@ int idpinterval;
 //             lcd.print("4");//lcd write
                Serial.println("4");
                delay(200);
-               digitalWrite(PWDN, 1);  //activate power down input
+               digitalWrite(pwdn, 1);  //activate power down input
           }
     }
 
@@ -730,7 +659,7 @@ int idpinterval;
 //             lcd.print("5");//lcd write
                Serial.println("5");
                delay(200);
-               digitalWrite(PWDN, 1);  //activate power down input
+               digitalWrite(pwdn, 1);  //activate power down input
           }
     }
 
@@ -741,7 +670,7 @@ int idpinterval;
 //             lcd.print("6");//lcd write
                Serial.println("6");
                delay(200);
-               digitalWrite(PWDN, 1);  //activate power down input
+               digitalWrite(pwdn, 1);  //activate power down input
           }
     }
 
@@ -752,7 +681,7 @@ int idpinterval;
 //             lcd.print("7");//lcd write
                Serial.println("7");
                delay(200);
-               digitalWrite(PWDN, 1);  //activate power down input
+               digitalWrite(pwdn, 1);  //activate power down input
           }
     }
 
@@ -763,7 +692,7 @@ int idpinterval;
 //              lcd.print("8");//lcd write
                 Serial.println("8");
                 delay(200);
-                digitalWrite(PWDN, 1);  //activate power down input
+                digitalWrite(pwdn, 1);  //activate power down input
           }
     }
 
@@ -774,7 +703,7 @@ int idpinterval;
 //              lcd.print("9");//lcd write
                 Serial.println("9");
                 delay(200);
-                digitalWrite(PWDN, 1);  //activate power down input
+                digitalWrite(pwdn, 1);  //activate power down input
           }
     }
 
@@ -785,7 +714,7 @@ int idpinterval;
 //              lcd.print("0");//lcd write
                 Serial.println("0");
                 delay(200);
-                digitalWrite(PWDN, 1);  //activate power down input
+                digitalWrite(pwdn, 1);  //activate power down input
           }
     }
 
@@ -796,7 +725,7 @@ int idpinterval;
 //              lcd.print("*");//lcd write
                 Serial.println("*");
                 delay(200);
-                digitalWrite(PWDN, 1);  //activate power down input
+                digitalWrite(pwdn, 1);  //activate power down input
           }
     }
 
@@ -807,29 +736,29 @@ int idpinterval;
 //              lcd.print("#");//lcd write
                 Serial.println("#");
                 delay(200);
-                digitalWrite(PWDN, 1);  //activate power down input
+                digitalWrite(pwdn, 1);  //activate power down input
           }
     }
 
 
 }
-//*************************************************************************************************************************************************************************
-void play_dialtone (void)                   //activate Tone mode
+/*************************************************************************************************************************************************************************/
+
+void play_dialtone (void)                 //activate Tone mode
 {
-      digitalWrite(receiverpower, 0);   //activate receiver relay
+      digitalWrite(rxRL, 0);              //activate receiver relay
       
-      digitalWrite(powerRL, 1);       //de-activate Telephone relay
-      digitalWrite(dtmfRL, 1);        //de-activate DTMF relay
-      digitalWrite(pulseRL, 1);      //de-activate pulse relay
-      digitalWrite(ringRL, 1);       //de-activate ring relay
-      digitalWrite(transmitterRL, 1);//de-activate transmitter relay
- 
+        
+      digitalWrite(dtmfRL, 1);            //de-activate DTMF relay
+      digitalWrite(pulseRL, 1);           //de-activate pulse relay
+            
+       
   
   while(!Serial);
   delay(2000);
   
-  pinMode(tonestart, OUTPUT);
-  pinMode(tonestop, INPUT_PULLUP);
+  pinMode(rxin, OUTPUT);
+  pinMode(rxout, INPUT_PULLUP);
   // Initialize the tone_zeroes array
   for(int i = sizeof(tone_zeroes)/sizeof(tone_zeroes[0])-1;i > 0 ;i--) 
   {
@@ -844,113 +773,131 @@ void play_dialtone (void)                   //activate Tone mode
   while(1) {
     output ^= 1;
     delayCount = tone_zeroes[idx++];
-    digitalWrite(tonestart,output);
+    digitalWrite(rxin,output);
     delayMicroseconds(delayCount*125L);
     if (idx >= sizeof(tone_zeroes)/sizeof(tone_zeroes[0]))idx = 0;
     // This hangs the code if stopPin is grounded.
     // Or it can be used to terminate the tone and return from the
     // function by adding "break" to the while loop.
-    while(digitalRead(tonestop) == 0);
+    while(digitalRead(rxout) == 0);
   }  
-  digitalWrite(tonestart, LOW);
-}      
-//************************************************************************************************************************************************************************
-
-int pulse()
+  digitalWrite(rxin, LOW);
+}  
+/*************************************************************************************************************************************************************************/
+void pulse()
 {
-      digitalWrite(powerRL, 0);       //activate Telephone relay
-      digitalWrite(pulseRL, 0);      //activate pulse relay
-      
-      digitalWrite(dtmfRL, 1);        //de-activate DTMF relay
-      digitalWrite(ringRL, 1);       //de-activate ring relay
-      digitalWrite(receiverpower, 1);   //de-activate receiver relay
-      digitalWrite(transmitterRL, 1);//de-activate transmitter relay
-                                                                
-                                                                              //***************************************pulse digit+ ips+ %break etc detection code
-unsigned long starttime;                   
-unsigned long endtime;
-unsigned long duration;
-unsigned long make;
-unsigned long brk;
-unsigned long pulsewidth = 100;             // Variable for saving pulseswidth.
-
-int pulse = 0;                              // Variable for saving pulses count.
-int var = 0;                                // Variable for detecting pulse "HIGH".
-int  currentstate = 0;                     
 starttime = millis();                       // Variable for saving intial value of Timer.
 endtime = starttime;                        // Variable for saving final value of Timer.
 
-if(digitalRead(pulseinput) > var)           // Detection of Pulse "HIGH" or "LOW".
+if(digitalRead(pulsein) > var)           // Detection of Pulse "HIGH" or "LOW".
 {
   
-           duration = pulseIn(pulseinput,LOW,10);                             
-     
-while ((endtime - starttime) <=1100)        // do this loop for up to 1000mS
+
+  while ((endtime - starttime) <=1100)        // do this loop for up to 1000mS
 { 
+ 
+  duration = pulseIn(pulsein, HIGH);
+
+  if (duration > 2000)
+  {
+  pulsecounter++ ;
+  Serial.println(duration);
+  Serial.println(":    ");
+  Serial.println(pulsecounter);
+  dur = duration;
+
+  }
+ endtime  = millis(); 
+   
+}
+
+ Serial.print("last duration: ");
+ Serial.println(dur);
+
+ pulsecounter = 1;
+ brratio = (pulsewidth - (dur))/1000;
+ 
+ Serial.print(F (" Break Ratio: "));
+ Serial.print(brratio);
+ Serial.println(F (" %"));
+ 
+}
+}
+/************************************************************************************************************************************************************************/
+
+int pin = 12;
+int pulse;
+unsigned long duration;
+unsigned long starttime;                   
+unsigned long endtime;
+unsigned long t;
+int var = 0;
+unsigned long dur;
+
+unsigned long dur2;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(pin, INPUT);
+pulse = 1;
+
+                    
+}
+
+void loop() {
+  starttime = millis();                       // Variable for saving intial value of Timer.
+endtime = starttime;    // Variable for saving final value of Timer.
+
+if(digitalRead(pin) > var)           // Detection of Pulse "HIGH" or "LOW".
+{
   
 
-// code here
- if(digitalRead(pulseinput) > var)          // Pulse detected "HIGH".
-  {
-    var = 1;
-    pulse= pulse + 1;
-    
-    Serial.print(pulse);
-    Serial.print(F(" pulse"));
+  while ((endtime - starttime) <=3000)        // do this loop for up to 1000mS
+{ 
+ 
+  duration = pulseIn(pin, HIGH);
 
-                                              // Put an "s" if the amount of pulses is greater than 1.
-    if(pulse > 1) {Serial.print(F("s"));}
+  if (duration > 5000)
+  {
+   if((endtime - starttime) < 500)
+   { 
+   pulse++ ;
+   if (pulse > 1)
+   {  
+    pulse = 1;
+    starttime = millis();    // Variable for saving intial value of Timer.
+    endtime = starttime ;    // Variable for saving final value of Timer.
+   }
+  Serial.println(duration);
+  Serial.println(":    ");
+  Serial.println(pulse);
+  dur = duration;
+  dur2 = endtime;
+   }
    
-    Serial.println(F(" detected."));
-     
-    
+   if((endtime - starttime) > 500)
+   {
+   t = endtime - starttime;
+ 
+ Serial.print("Endtime :  ");
+ Serial.println(t);
+   }
   }
   
- currentstate = pulse;
-  if(digitalRead(pulseinput) == 0)              // Detection of Pulse "HIGH" or "LOW".
-  {var = 0;}
-        
-         endtime = millis();  
-              
-       
-     
-}                                                 // while loop ends here
-
-          
-  
-          make = duration;    //Duration upto which Pulse detected "HIGH."
-          Serial.println(make);
-          brk = pulsewidth - (make);                //calculation of BREAK Duration.
-          
-          Serial.println("Break ratio % = ");     
-          Serial.println(brk); //"Break Ratio:"
-           
-}
-
+ endtime  = millis(); 
+   
 }
 
 
-//*************************************************************************************************************************************************************************
-int ring()
-{     digitalWrite(ringRL, 0);       //activate ring relay
-      
-      digitalWrite(powerRL, 1);       //de-activate Telephone relay
-      digitalWrite(transmitterRL, 1);//de-activate transmitter relay
-      digitalWrite(pulseRL, 1);      //de-activate pulse relay
-      digitalWrite(dtmfRL, 1);        //de-activate DTMF relay
-      digitalWrite(ringRL, 1);       //de-activate ring relay
-      digitalWrite(receiverpower, 1);   //de-activate receiver relay
-      digitalWrite(transmitterRL, 1);//de-activate transmitter relay
+ //Serial.print("last duration: ");
+// Serial.println(dur);
+
+ pulse = 1;
+// brratio = (pulsewidth - (dur))/1000;
+ 
+ //Serial.print(F (" Break Ratio: "));
+ //Serial.print(brratio);
+// Serial.println(F (" %"));
+ 
 }
-//*************************************************************************************************************************************************************************
-int transmitter()
-{
-      digitalWrite(powerRL, 0);       //activate Telephone relay
-      digitalWrite(transmitterRL, 0);//activate transmitter relay
-      
-      digitalWrite(pulseRL, 1);      //de-activate pulse relay
-      digitalWrite(dtmfRL, 1);        //de-activate DTMF relay
-      digitalWrite(ringRL, 1);       //de-activate ring relay
-      digitalWrite(receiverpower, 1);   //de-activate receiver relay
-      digitalWrite(transmitterRL, 1);//de-activate transmitter relay
 }
